@@ -13,15 +13,11 @@ public class TextDesc {
 
     private String createDate;
 
+    private String fileName;
+
     private String content;
 
     public TextDesc() {
-    }
-
-    public TextDesc(String docId, String createDate, String content) {
-        this.docId = docId;
-        this.createDate = createDate;
-        this.content = content;
     }
 
     public String getDocId() {
@@ -46,5 +42,13 @@ public class TextDesc {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
