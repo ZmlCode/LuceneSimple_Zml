@@ -27,7 +27,8 @@ import static com.zml.simple.define.IndexConstantDefine.*;
  */
 @Component
 public class LuceneDao {
-    @Value("${index.FilePath}")
+    //存储基于最简单的单字分词方式建索和查询的索引路径
+    @Value("${index.stand.FilePath}")
     private File indexFile;
 
     private IndexReader reader;
@@ -67,6 +68,7 @@ public class LuceneDao {
 
     /**
      * 建索
+     *   基于单字分词
      * @param fileName
      * @param inputStream
      * @return
@@ -74,7 +76,7 @@ public class LuceneDao {
     public boolean index(String fileName, InputStream inputStream) {
         try {
             //读取文件获取出内容字符流
-            InputStreamReader fileReader = new InputStreamReader(inputStream);
+            InputStreamReader fileReader = new InputStreamReader(inputStream, "UTF-8");
 
             //使用最基本的 单字分词器 构造一个IndexWriter
             IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()));

@@ -8,15 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Date;
 
 /**
  * 查询关键词检索
+ *    基于StandAnalyzer单字分词的检索
  * @author zml
  * @date 2020/07/24
  */
@@ -76,10 +74,7 @@ public class SimpleQueryController {
 
      /**
      * 查询出关键词所在文本
-      *    组合查询
-     *   后续慢慢支持以下内容：
-     *   取出片段 高亮展示
-     *   带出频次 并分页展示
+     * 组合查询
      * @param begin
      * @param end
      * @return
