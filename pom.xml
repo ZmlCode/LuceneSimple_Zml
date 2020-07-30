@@ -68,6 +68,12 @@
             <!-- 8.6.0最新  luke最多支持到8.0.0-->
 			<version>8.0.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queryparser</artifactId>
+			<version>8.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

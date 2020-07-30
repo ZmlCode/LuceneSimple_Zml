@@ -2,9 +2,13 @@ package com.zml.simple.service;
 
 import com.zml.simple.dao.LuceneDao;
 import com.zml.simple.define.SearchData;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
+import org.apache.lucene.util.QueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -86,6 +90,7 @@ public class LuceneService {
     /**
      * 常见的基本查询的使用
      *  短语查询 通配符查询 前缀查询 模糊查询
+     *   查询逻辑基于lucene查询语法
      */
     public void searchMoreDemo() {
         /**
@@ -109,10 +114,57 @@ public class LuceneService {
         //模糊查询  原理上基于编辑距离算法 0,1,2  比如这里只要满足编辑1次  textconten->textcontent后，就能出现在文档中了，值越大搜索出的文档越多
         FuzzyQuery fuzzyQuery = new FuzzyQuery(new Term(FIELD_TEXT, "textconten"),2);
         luceneDao.search(fuzzyQuery);
+
+        //queryBulid可以设置create的各种查询器
+        QueryBuilder builder = new QueryBuilder(new StandardAnalyzer());
     }
 
     public boolean isValid() {
         return luceneDao.getReader() != null;
+    }
+
+    /**
+     * QureyParser的使用
+     * @param word
+     * @return
+     */
+    public SearchData likeSearch(String word) {
+        //lucene查询语法的继续使用
+        try {
+            QueryParser fieldParser = new QueryParser(FIELD_TEXT, new StandardAnalyzer());
+            luceneDao.search(fieldParser.parse("姜熙健")); //text:姜 text:熙 text:健 也就是 姜||熙 ||健
+
+            QueryParser parser = new QueryParser("", new StandardAnalyzer());
+            Query query = parser.parse("text:java text: 光洙 AND title:简*");//java || (光 && 题目中有简字)
+            luceneDao.search(query);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        //自定义扩展QueryParser的简单实现
+        Query fuzzyQuery = new CustomParser(FIELD_TEXT, new StandardAnalyzer()).getFuzzyQuery(FIELD_TEXT, word);
+        return luceneDao.search(fuzzyQuery);
+    }
+
+    /**
+     * QueryParser.parser的使用
+     * lucene查询语法的继续使用demo
+     * @return
+     */
+    public SearchData searchQueryStr(String queryStr) {
+        try {
+            QueryParser fieldParser = new QueryParser(FIELD_TEXT, new StandardAnalyzer());
+            luceneDao.search(fieldParser.parse("姜熙健")); //text:姜 text:熙 text:健 也就是 姜||熙 ||健
+
+            QueryParser parser = new QueryParser("", new StandardAnalyzer());
+            Query query = parser.parse("text:java text: 光洙 AND title:简*");//java || (光 && 题目中有简字)
+            luceneDao.search(query);
+
+            return luceneDao.search(parser.parse(queryStr));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
