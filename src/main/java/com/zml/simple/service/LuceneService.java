@@ -8,6 +8,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.spans.SpanNearQuery;
+import org.apache.lucene.search.spans.SpanQuery;
+import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.util.QueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -102,6 +105,21 @@ public class LuceneService {
         pBuilder.add(new Term(FIELD_TEXT, "textcontent"));
         pBuilder.setSlop(100);
         luceneDao.search(pBuilder.build());
+        //短语查询不好的原因：必须保证和内容顺序一致，倒序时查不到
+        PhraseQuery.Builder pBuilder2 = new PhraseQuery.Builder();
+        pBuilder2.add(new Term(FIELD_TEXT, "池"));
+        pBuilder2.add(new Term(FIELD_TEXT, "刘"));
+        pBuilder2.setSlop(3);
+        luceneDao.search(pBuilder.build());
+
+        //跨度查询不好的原因：2个SpanTerm以上时，slop必须从最开始字符到最后字符总的slop才命中 slop不能用于控制左右两个词的单独间距
+        SpanTermQuery night = new SpanTermQuery(new Term(FIELD_TEXT,"刘"));
+        SpanTermQuery him = new SpanTermQuery(new Term(FIELD_TEXT,"池"));
+        SpanTermQuery clothes = new SpanTermQuery(new Term(FIELD_TEXT,"金"));
+        SpanQuery[] night_him_clothes=new SpanQuery[]{night,him,clothes};
+        /*SpanQuery[] night_him_clothes=new SpanQuery[]{night,him};*/
+        SpanNearQuery query=new SpanNearQuery(night_him_clothes, 4,false);
+        luceneDao.search(query);
 
         //通配符查询  可以使用* ?  查到TextContent的文档所在
         WildcardQuery wildcardQuery = new WildcardQuery(new Term(FIELD_TEXT, "*content"));
